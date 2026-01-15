@@ -7,7 +7,7 @@ from typing import Any, Optional
 import requests
 
 
-def test_health(base_url: str) -> dict[str, Any]:
+def test_health(base_url: str, api_key: Optional[str] = None) -> dict[str, Any]:
     """
     Test the health check endpoint.
 
@@ -19,7 +19,12 @@ def test_health(base_url: str) -> dict[str, Any]:
     """
     url = f"{base_url}/health"
     start_time = time.time()
-    response = requests.get(url)
+    headers = {}
+
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    response = requests.get(url, headers=headers)
     elapsed_time = time.time() - start_time
 
     if response.status_code == 200:
@@ -50,7 +55,7 @@ def test_predict(
     # Prepare headers
     headers = {}
     if api_key:
-        headers["X-API-Key"] = api_key
+        headers["Authorization"] = f"Bearer {api_key}"
 
     # Prepare file
     with open(image_path, "rb") as f:
@@ -92,7 +97,7 @@ def test_predict_top(
     # Prepare headers
     headers = {}
     if api_key:
-        headers["X-API-Key"] = api_key
+        headers["Authorization"] = f"Bearer {api_key}"
 
     # Prepare file and parameters
     with open(image_path, "rb") as f:
@@ -134,7 +139,7 @@ def main():
 
     # Test health check
     print("\n=== Testing Health Check ===")
-    test_health(args.url)
+    test_health(args.url, args.api_key)
 
     # Test prediction endpoint
     print("\n=== Testing Prediction Endpoint ===")
